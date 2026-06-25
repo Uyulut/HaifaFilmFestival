@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="פסטיבל הסרטים הבינלאומי חיפה" />
+    <title>פסטיבל הסרטים הבינלאומי חיפה</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main>
+      <section class="hero" aria-label="פסטיבל הסרטים הבינלאומי חיפה">
+        <div class="hero__canvas">
+          <img class="hero__collage" src="assets/collage.png" alt="קולאז׳ מתוך סרטי הפסטיבל" />
+          <img class="hero__paper" src="assets/paper-tear-grey.png" alt="" />
+          <img class="hero__grey" src="assets/grey.png" alt="" />
+          <img class="hero__grain" src="assets/torn-black.png" alt="" />
+
+          <div class="story" data-scroll-story>
+            <img class="story__tear" src="assets/side-texture.png" alt="" />
+            <img class="story__tear story__tear--flipped" src="assets/side-texture.png" alt="" />
+            <div class="story__copy">
+              <p>
+                פסטיבל הסרטים הבינלאומי בחיפה, שנוסד בשנת 1983, הוא הפסטיבל הראשון
+                והגדול בישראל ואחד מאירועי התרבות המרכזיים בארץ, המתקים מדי שנה במהלך
+                חג סוכות בעיר חיפה, במשך עשרה ימים מוקרנים מאות סרטים מחמשה אולמות
+                מהבוקר ועד חצות, לצד הקרנות חוץ במוקדים שונים כמו סינמטק חיפה וגן האם
+              </p>
+              <p>
+                הפסטיבל מושך כ־80,000 צופים באולמות ואלפים נוספים באירועים הפתוחים
+                התוכנית האמנותית נבחרת בקפידה תוך דגש על איכות, גיוון ופלורליזם,
+                כוללת סרטים זוכי פרסים מהעולם, לצד תחרויות, מפגשים מקצועיים וסדנאות
+              </p>
+            </div>
+
+            <ul class="trailers__list" role="tablist">
+              <li class="trailers__item trailers__item--active" data-movie="love" role="tab" aria-selected="true">
+                Love | אהבה
+              </li>
+              <li class="trailers__item" data-movie="lurker" role="tab" aria-selected="false">
+                Lurker | אורב
+              </li>
+              <li class="trailers__item" data-movie="choice" role="tab" aria-selected="false">
+                No Other Choice | אין ברירה
+              </li>
+            </ul>
+          </div>
+
+          <div class="trailers__right" data-scroll-trailers-right>
+            <div class="trailers__video-wrapper">
+              <video class="trailers__video" autoplay loop muted playsinline src="assets/trailers/Love  Official US Trailer  Strand Releasing - Strand Releasing (1080p, h264).mp4"></video>
+            </div>
+            <div class="trailers__overlay">
+              <!-- Future dates & theater metadata overlay will be added here -->
+            </div>
+          </div>
+
+          <nav class="nav" aria-label="ניווט ראשי">
+            <a href="#about">אודות</a>
+            <a href="#films">סרטים</a>
+            <a href="#map">מפה</a>
+            <a href="#contact">יצירת קשר</a>
+          </nav>
+
+          <div class="festival-mark">
+            <div class="festival-mark__header">
+              <img
+                class="festival-mark__logo"
+                src="assets/logotype-animated000.gif"
+                alt="Haifa International Film Festival"
+              />
+              <img
+                class="festival-mark__42"
+                src="assets/42.png"
+                alt="42"
+              />
+              <div class="festival-mark__date" aria-label="26.9 עד 3.10">
+                <span>26.9</span>
+                <img src="assets/date-line.svg" alt="" />
+                <span>3.10</span>
+              </div>
+            </div>
+            <a class="tickets" href="#tickets" aria-label="לרכישת כרטיסים">
+              <img class="tickets__shape tickets__shape--default" src="assets/ticket-shape.svg" alt="" />
+              <img class="tickets__shape tickets__shape--hover" src="assets/ticket-hover.svg" alt="" />
+              <span>כרטיסים</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>
