@@ -1,0 +1,43 @@
+# Big media the site never loads. Verified unreferenced in index.html/style.css/main.js.
+# Kept out on purpose: git keeps every committed blob forever, so a 92MB GIF stays
+# in history even if deleted later. Re-add a file here only if the site starts using it.
+
+# 92MB + 20MB, unused (the poster animation is not on the page)
+poster1_2.gif
+poster1_1.mp4
+
+# 57MB of local trailer files — trailers now stream from YouTube
+assets/trailers/
+
+# 21MB, unused
+assets/collage/
+
+# 12.7MB, unused (sponsors render from img/sponsors.png)
+assets/SVG/logos.svg
+
+# unused stills / scratch exports
+assets/texture.png
+assets/Untitled-1.png
+assets/Untitled-2.jpg
+assets/newassets/
+
+# unused textures — only "hero photos/1/texture.jpg" is actually loaded
+assets/hero photos/2/texture.png
+assets/hero photos/3/texture.png
+
+# unused exports
+img/collage.png
+img/SVG/open.svg
+img/SVG/openbar.svg
+
+# raw font download, superseded by the unpacked fonts/ploni/
+fonts/*.zip
+
+# design sources, not needed to serve the site
+assets/papertears.psd
+bluebaropen.ai
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+desktop.ini

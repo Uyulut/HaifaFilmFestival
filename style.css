@@ -1,0 +1,638 @@
+/* ════════════════════════════════════════════════════════════════════
+   Haifa Film Festival 42 — single page, accordion of map / movies / contact.
+   The design is a 1440px composition. Everything is sized in `cqw`
+   (1cqw = 1% of .festival width  ≈ 14.4 design-px at 1440), so the whole
+   page scales fluidly while keeping the exact Figma proportions.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── Real festival typefaces (shipped in ./fonts) ────────────────────── */
+@font-face { font-family:"Index"; src:url("./fonts/index-light-aaa.otf")    format("opentype"); font-weight:300; font-display:swap; }
+@font-face { font-family:"Index"; src:url("./fonts/index-regular-aaa.otf")  format("opentype"); font-weight:400; font-display:swap; }
+@font-face { font-family:"Index"; src:url("./fonts/index-medium-aaa.otf")   format("opentype"); font-weight:500; font-display:swap; }
+@font-face { font-family:"Index"; src:url("./fonts/index-demibold-aaa.otf") format("opentype"); font-weight:600; font-display:swap; }
+@font-face { font-family:"Index"; src:url("./fonts/index-bold-aaa.otf")     format("opentype"); font-weight:700; font-display:swap; }
+
+@font-face { font-family:"Ploni"; src:url("./fonts/ploni/ploni-light-aaa.otf")    format("opentype"); font-weight:300; font-display:swap; }
+@font-face { font-family:"Ploni"; src:url("./fonts/ploni/ploni-regular-aaa.otf")  format("opentype"); font-weight:400; font-display:swap; }
+@font-face { font-family:"Ploni"; src:url("./fonts/ploni/ploni-medium-aaa.otf")   format("opentype"); font-weight:500; font-display:swap; }
+@font-face { font-family:"Ploni"; src:url("./fonts/ploni/ploni-demibold-aaa.otf") format("opentype"); font-weight:600; font-display:swap; }
+@font-face { font-family:"Ploni"; src:url("./fonts/ploni/ploni-bold-aaa.otf")     format("opentype"); font-weight:700; font-display:swap; }
+@font-face { font-family:"Ploni"; src:url("./fonts/ploni/ploni-black-aaa.otf")     format("opentype"); font-weight:900; font-display:swap; }
+
+:root {
+  --display: "Index", "Heebo", system-ui, sans-serif;
+  --text:    "Ploni", "Heebo", system-ui, sans-serif;
+  --yellow: #dbdc30;   /* map  */
+  --blue:   #8cb8e2;   /* movies */
+  --red:    #f05342;   /* contact */
+  --cream:  #ecf4db;
+  --ink:    #1d1c1a;   /* torn-paper black */
+  --hero-text-inset: 6.5cqw;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; background: var(--ink); }
+
+body {
+  font-family: var(--text);
+  -webkit-font-smoothing: antialiased;
+  color: var(--cream);
+}
+
+a { color: inherit; text-decoration: none; }
+
+.festival {
+  width: 100%;                     /* full-bleed: fills the viewport width */
+  margin: 0 auto;
+  background: var(--ink);
+  container-type: inline-size;     /* establishes the cqw reference */
+  overflow: hidden;
+
+  /* ── Closed-accordion metrics (drive the hero height so all 3 strips fit) ──
+     Bars are px-clamped so they stay close to the 110px design on wide screens
+     but get compact on narrower/shorter ones. --bar-overlap keeps the exact
+     current overlap:height ratio (2.6cqw / 7.68cqw ≈ 0.339) so the torn edges
+     interlock identically — the closed strip stack is just uniformly scaled. */
+  --bar-h: clamp(72px, 6.2cqw, 110px);
+  --bar-overlap: calc(var(--bar-h) * 0.339);
+  /* Each collapsed .acc is (bar-h - overlap) tall in the DOM (the panelwrap's
+     negative margin pulls the next section up), so the accordion container is
+     3 * (bar-h - overlap). Sizing the hero off THIS (not the visual bar3 bottom)
+     makes hero + accordion == 100svh exactly, so the red strip is flush to the
+     bottom edge with no leftover black band under it. */
+  --closed-accordion-h: calc((var(--bar-h) - var(--bar-overlap)) * 3);
+}
+
+/* Reusable SVG slash (real asset, recolored via currentColor) */
+.slash {
+  display: inline-block; flex: none;
+  aspect-ratio: 33.77 / 83.58; height: 1em;
+  background: currentColor;
+  -webkit-mask: url("./assets/SVG/slash2.svg") no-repeat center / contain;
+          mask: url("./assets/SVG/slash2.svg") no-repeat center / contain;
+}
+
+/* ── Shared hero ─────────────────────────────────────────────────────── */
+.hero {
+  --px: 0; --py: 0;                /* mouse parallax, set by main.js (range ≈ -0.5…0.5) */
+  position: relative;
+  width: 100%;
+  /* Fit hero + the 3 closed strips into the first screen: hero takes whatever
+     viewport height is left after the closed accordion, capped at the design
+     height on tall screens. Guarantees hero + closed bars <= 100svh, so all
+     three strips are visible on load without scrolling. The small px floor is
+     viewport-safe: it never overrides the calc on real screens (unlike the old
+     cqw floor, which grew with width and pushed the 3rd strip below the fold). */
+  height: calc(100svh - var(--closed-accordion-h));   /* design height: 761 / 14.4 */
+  min-height: 0;
+  background: #fff;
+  overflow: hidden;
+}
+
+.layer { position: absolute; pointer-events: none; max-width: none; }
+
+.hero-photo {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.hero-photo > .layer { animation: hero-photo-one 18s ease-in-out infinite; }
+.hero-photo--two > .layer { animation-name: hero-photo-two; }
+.hero-photo--three > .layer { animation-name: hero-photo-three; }
+/* photo 3's characters are drawn smaller within their frame — scale each layer up to
+   match photos 1 & 2. Scaling the layers (not the group) keeps each layer's own
+   z-index global, so the characters still sit ABOVE the paper-tear overlays. */
+.hero-photo--three .layer--hero-bg     { transform: translate(calc(var(--px) * -0.5cqw), calc(var(--py) * -0.5cqw)) scale(1.6); transform-origin: 43% 28%; }
+.hero-photo--three .layer--hero-border { transform: translate(calc(var(--px) * -2.8cqw), calc(var(--py) * -2.8cqw)) scale(1.6); transform-origin: 43% 28%; }
+.hero-photo--three .layer--hero-p2     { transform: translate(calc(var(--px) * -1.2cqw), calc(var(--py) * -1.2cqw)) scale(1.6); transform-origin: 43% 28%; }
+.hero-photo--three .layer--hero-p1     { transform: translate(calc(var(--px) * -2.0cqw), calc(var(--py) * -2.0cqw)) scale(1.6); transform-origin: 43% 28%; }
+
+/* z-order back -> front: collage backgrounds, paper tears, characters, text, texture */
+.layer--hero-bg     { left: -3.2cqw;   top: -1.7cqw;   width: 57cqw;     z-index: 1; }
+.layer--hero-border { left: -0.2cqw;   top: 1cqw;      width: 50cqw;     z-index: 2; }
+.layer--hero-border-blue {
+  aspect-ratio: 1;
+  background: var(--blue);
+  -webkit-mask: url("./assets/hero photos/1/border.png") no-repeat center / contain;
+          mask: url("./assets/hero photos/1/border.png") no-repeat center / contain;
+}
+.layer--hero-p2     { left: 0.4cqw;    top: 0.3cqw;    width: 50cqw;     z-index: 7; }
+.layer--hero-p1     { left: 0.4cqw;    top: 0.3cqw;    width: 50cqw;     z-index: 7; }
+.layer--side    { left: -0.5cqw;   top: -18cqw;    width: 112cqw;    z-index: 6; }
+.layer--medium  { left: 0;         top: -2cqw;     width: 110cqw;    z-index: 3; }
+.layer--grey    { left: 0;         top: -1cqw;     width: 110cqw;    z-index: 4; }
+.layer--grey2   { left: 20cqw;     top: -1.5cqw;   width: 95cqw;     z-index: 5; }
+.layer--black   { left: 0;         top: -2cqw;     width: 110cqw;    z-index: 6; }
+.layer--texture {
+  left: 50%;
+  transform: translateX(-50%) translate(calc(var(--px) * -0.25cqw), calc(var(--py) * -0.25cqw));
+  top: -5.49cqw; width: 103.75cqw; height: calc(100% + 11cqw);
+  object-fit: cover;
+  mix-blend-mode: multiply; opacity: .9; z-index: 10;
+}
+
+/* ── Mouse parallax: each hero layer drifts a different amount (depth) ─── */
+.layer--hero-bg, .layer--hero-p2, .layer--hero-p1, .layer--hero-border, .layer--side, .layer--black, .layer--texture, .logo, .intro { will-change: transform; }
+.layer--hero-bg     { transform: translate(calc(var(--px) * -0.5cqw), calc(var(--py) * -0.5cqw)); }
+.layer--hero-p2     { transform: translate(calc(var(--px) * -1.2cqw), calc(var(--py) * -1.2cqw)); }
+.layer--hero-p1     { transform: translate(calc(var(--px) * -2.0cqw), calc(var(--py) * -2.0cqw)); }
+.layer--hero-border { transform: translate(calc(var(--px) * -2.8cqw), calc(var(--py) * -2.8cqw)); }
+.layer--side    { transform: translate(calc(var(--px) *  1.3cqw), calc(var(--py) *  0.9cqw)); }
+.layer--black   { transform: translate(calc(var(--px) *  0.6cqw), calc(var(--py) *  0.4cqw)); }
+/* .logo / .intro keep their own transform below; parallax is appended there */
+/* three-way crossfade: each photo holds ~1/3 of the cycle, fades between */
+@keyframes hero-photo-one {
+  0%, 28% { opacity: 1; }
+  33%, 94% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes hero-photo-two {
+  0%, 28% { opacity: 0; }
+  33%, 61% { opacity: 1; }
+  66%, 100% { opacity: 0; }
+}
+@keyframes hero-photo-three {
+  0%, 61% { opacity: 0; }
+  66%, 94% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.logo {
+  position: absolute; z-index: 9;
+  right: var(--hero-text-inset); top: 3cqw; width: 26cqw;
+  display: flex; flex-direction: column; align-items: flex-end; direction: ltr;
+  transform: translate(calc(var(--px) * 0.7cqw), calc(var(--py) * 0.5cqw));
+}
+.logo__mark { width: 100%; height: auto; display: block; }
+.logo__dates {
+  display: none;   /* date removed from hero */
+  margin: .4cqw 0 0; direction: ltr; align-self: flex-start;
+  align-items: center; gap: .8cqw;
+  color: #fff; font-size: 1.3cqw; font-weight: 400; letter-spacing: .02em;
+}
+.logo__dates .dash { width: 1.7cqw; height: .1cqw; background: var(--yellow); }
+
+.intro {
+  position: absolute; z-index: 9;
+  right: var(--hero-text-inset); top: 17cqw; width: 22.5cqw;
+  color: var(--cream); text-align: right; font-size: 16px; line-height: 1.5;
+  transform: translate(calc(var(--px) * 0.55cqw), calc(var(--py) * 0.4cqw));
+}
+.intro p { margin: 0 0 1.1cqw; }
+
+/* ── Accordion bars ──────────────────────────────────────────────────── */
+.accordion { width: 100%; }
+.acc { margin: 0; position: relative; }
+.acc + .acc { margin-top: 0; }
+.acc:nth-child(1) { z-index: 1; }
+.acc:nth-child(2) { z-index: 2; }
+.acc:nth-child(3) { z-index: 3; }
+.acc__heading { margin: 0; }
+
+.bar {
+  display: flex; align-items: center; justify-content: flex-start;
+  width: 100%; height: var(--bar-h);       /* px-clamped ~110px design; compact on small screens */
+  border: 0; margin: 0;
+  padding-right: var(--hero-text-inset);
+  /* optical-center the label: the top two strips are overlapped by the strip
+     below, so their visible band is (bar-h - overlap). Raising the text by
+     ~overlap/2 centers it in that visible band instead of the geometric box. */
+  line-height: 1; padding-bottom: calc(var(--bar-overlap) * 0.9);
+  font-family: var(--display); font-size: 1.886cqw; font-weight: 600; letter-spacing: .01em;
+  color: #fff; text-align: right; cursor: pointer; appearance: none;
+  transition: filter .15s ease;
+  position: relative;
+  z-index: 10;
+  overflow: visible;
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg id='Layer_2' data-name='Layer 2' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1439.8 110.63' preserveAspectRatio='none'><path fill='%238cb7e1' d='M0,96.51L.03,0h1439.75s.03,89.33.03,89.33c-1.16-.36-2.33.12-3.28,1.34-.91,1.41-2.16,2.21-3.31,2.41-1.71.21-3.41-.37-4.85-1.83-3.9,0-6.91-1.65-10.29-3.54-3.2,3.14-7.47,3.35-10.45.58-3.25-1.16-6.35-1.88-8.96.94l-2.88-2.81c-1.48-.09-3,.43-4.95,1.04-2.56-2.66-5.88-3.47-8.43-.71l-12.66.24c-2.5,2.39-5.29,3.9-8.94,3.97-2.3,1.94-4.82,3.48-7.99,3.15-4.53-.28-8.07,2.43-8.95,6.82-2.13.3-3.6.08-5.46-1.01-4.42,1.96-9.2,2.47-14.07,1.74-2.26-2.54-5.16-3.63-8.8-2.17-3.73-3.04-7.96-3.93-12.76-4.24-2.21-2.04-4.89-2.75-8.02-2.06-3.94-3.79-9.12-6.31-13.99-3.23-4.26-.34-7.91,1.43-10.63,4.32-1.96,2.65-5.51,2.57-7.71-.06-3.49.92-6.42-.44-9.08-3.23-3,1.6-5.86,2.75-9.2,2.77-2.51-3.81-7.75-4.41-11.2-1.64l-3.31-2.29c-3.23,1.62-6.5.77-8.48-2.38-4.25-1.28-8.73-.33-12.38,2.75-3.37-2.65-6.85-3.54-10.96-1.65-3.06-1.26-6.21-1.29-8.16,1.76-3.18-1.43-6.01-.84-9.05.58-3.27,2.38-7.24,2.34-10.63-.4-6.68-.84-13.76-.98-20.26,1.35-4.57,2.41-9.34,3.24-14.51,2.38-2.1,2.21-4.78,3.34-7.56,1.86-3.56.45-6.42-.96-9.6-2.32-2.26-1.6-4.59-2.04-7.35-.56-4.27-3.82-8.28-7.5-13.73-9.26-1.73-1.76-3.93-2.27-6.11-1.53-1.89.63-3.46,2.6-4.55,5.36-3.27-.43-6.23-.5-9.44.38-3.06-.79-5.8-1.22-9.18-.92-1.69-3.03-4.07-4.85-7.41-5.59-1.72-1.31-3.63-1.73-5.82-1.54-1.35.3-2.59,2.03-3.79,3.99l-12.57-1.1c-2.65,1.5-5.28,1.23-7.99.26-2.37,1.39-4.83,1.94-7.43,1-6.11.72-10.98,4.09-16.01,8.27-4.13-2.12-8.2-2.21-12.08.14-3.72,1.97-7.42,3.16-11.77,2.42-3.67-.15-6.92.81-9.28,3.61l-5.08.84c-2.92,2.09-6.11,3.01-9.69,3.26-3.25.35-5.92,1.84-7.12,4.91-.62,1.09-1.42,1.84-2.39,2.1-.85-.11-1.91-.41-2.98-1.63-4.38,1.78-8.94,2.8-13.81,2.34l-4.71-3.7c-3.43.98-6.58.78-9.08-1.76-3.36-.39-6.5-.97-9.52-2.23-3.34-3.13-7.36-4.45-11.86-3.97-2.22-2.28-5.09-2.3-7.8-1.19-5.17-.09-9.69,2.13-12.76,6.21-2.14,1.71-5.3,1.52-6.91-1.38-3.3.54-6.19-.36-9.13-2.81-2.65,1.27-4.89,2.48-7.93,2.57-2.89-2.14-6.08-3.21-9.75-3.18-1.89,1.59-4.21,1.39-5.61-1.07-3.59,1.7-7.08,1.02-9.17-2.6-4.29-.43-8.48.47-12.07,2.9l-6.43-3.4c-2.43.96-4.83,1.6-7.32.72-2.68-2.31-5.75-3.44-9.34-3.5-.38,3.93-1.82,6.99-4.99,9.08-3.87,5.37-10.65,6.88-16.77,5.23-5.27.85-10.28-.6-15.63-1.66-4.06,1.8-8.14,2-11.94-1.02-3.44,1.29-6.8,1.59-9.84,0-6.18.24-12.39-1.9-17.38-6.32-2.8-1.32-5.46-1.65-7.73.67-2.95.37-5.53-.5-7.88-2.2-5.43-1.96-11.04-1.81-16.83-1.91-2.75-2.74-6.11-1.9-8.39,1.03-3.59.77-7,1.57-9.92,4.28-5.49-1.2-10.33,1-12.36,6.29-1.94.69-3.68.34-5.64-.68-4.37,2.65-9.29,2.71-14.15,1.46-2.31-2.56-5.34-3.09-8.79-1.98-4.23-2.69-8.75-3.86-13.62-4.59-3.16-3.65-7.36-5.02-12.07-4.86-6.97-3.43-14.96-.08-19.96,5.32-2.25,1.58-5.03,1.31-7.07-.61-3.32-.31-6.29-1.14-9.29-2.87l-9.03,2.11c-2.58-3.77-7.97-4.72-11.59-1.43-2.13-2.58-4.4-2.87-7.33-1.27-3.96-5.34-10.63-5.84-15.51-1.28-2.58-.39-4.73-2.16-7.46-3.33-3.77,1.98-7.38,1.4-10.39-1.31-6.54-1.79-12.52-4.14-18.38-6.73-.73-1.54-2.26-2.54-3.86-2.46-2.06-.71-4.43-.51-4.5,1.85.09.22.04.72-.05.98-3.82,2.04-6.52,5.78-9.55,9.43-2.22.48-4.17,1.58-4.36,3.51-1.88.47-3.98.2-6.08-1.03-2.68-.42-4.71.99-6.48,2.26-.51-.02-1.02.02-1.6.18-.56.19-1.03.81-1.01,1.57l-1.7.15c-2.44,1.6-5.2,1.14-7.82.09l.22-10.08c.7-.42.71-1.27.61-1.56-.99-.8-1.87-.53-2.5-.44-.6.44-.71,1.18-.63,1.78-5.19-1.46-10.68.85-15.77,3.26-5.72,1.88-11.03,4.12-16.81,2.14-4.56,2.44-9.44,2.01-14.22,1.27-3.41-.08-6.08,1.12-7.01,4.51l-7.06,3.43c-3.41-.13-5.97-1.89-8.37-4.27-6.06.1-11.57-.84-17.87-2.18-3.18-.95-5.54-4.24-8.52-6.11-3.24-1.86-6.54-1.67-10.06-.41-3.95-3.92-8.58-5.94-13.8-5.31-2.08,5.56-8.28,6.9-13.48,4.83-4.12.2-7.83-.33-11.24-2.66-3.3-.31-6.19-1.33-9.05-2.89-2.13-1.13-4.33-1.31-6.76-.16-3.52-1.84-6.77-3.37-10.89-4.2-3.12,2.84-6.66,4.69-10.72,6.26-1.81,3.5-5.06,5.43-9.09,4.78-5.06,1.48-10.01,1.2-15.1-.24l-5.64,1.13c-2.88-1.78-5.79-2.12-9.29-2.2-.59-2.19-1.52-4.15-2.82-4.63-2.16-.52-4.14,0-5.76,1.74-3.73.23-7.2-.03-10.66,2.24-3.7-3.84-8.68-4.58-13.88-3.86-3.21.92-6.13.59-8.6-1.8l-10.06-.67c-3.49-2.18-7.24-3.15-11.35-3.81l-43.69.11c-2.76,2.27-5.92,2.44-9.29,1.61-2.71,1.04-5.24,1.12-7.98.17-2.74.98-5.28,1.29-7.95.55l-14.23,2.34c-4.5,1.71-7.84,3.85-9.8,8.53-6.66,1.67-13.73,1.02-20.03-2.15-5.16,1.96-10.36,2.13-16.01,1.98-3.91-.85-7.05.41-9.37,3.66-4.11.66-7.95.48-11.59-.25Z'/></svg>");
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: url("data:image/svg+xml;utf8,<svg id='Layer_2' data-name='Layer 2' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1439.8 110.63' preserveAspectRatio='none'><path fill='%238cb7e1' d='M0,96.51L.03,0h1439.75s.03,89.33.03,89.33c-1.16-.36-2.33.12-3.28,1.34-.91,1.41-2.16,2.21-3.31,2.41-1.71.21-3.41-.37-4.85-1.83-3.9,0-6.91-1.65-10.29-3.54-3.2,3.14-7.47,3.35-10.45.58-3.25-1.16-6.35-1.88-8.96.94l-2.88-2.81c-1.48-.09-3,.43-4.95,1.04-2.56-2.66-5.88-3.47-8.43-.71l-12.66.24c-2.5,2.39-5.29,3.9-8.94,3.97-2.3,1.94-4.82,3.48-7.99,3.15-4.53-.28-8.07,2.43-8.95,6.82-2.13.3-3.6.08-5.46-1.01-4.42,1.96-9.2,2.47-14.07,1.74-2.26-2.54-5.16-3.63-8.8-2.17-3.73-3.04-7.96-3.93-12.76-4.24-2.21-2.04-4.89-2.75-8.02-2.06-3.94-3.79-9.12-6.31-13.99-3.23-4.26-.34-7.91,1.43-10.63,4.32-1.96,2.65-5.51,2.57-7.71-.06-3.49.92-6.42-.44-9.08-3.23-3,1.6-5.86,2.75-9.2,2.77-2.51-3.81-7.75-4.41-11.2-1.64l-3.31-2.29c-3.23,1.62-6.5.77-8.48-2.38-4.25-1.28-8.73-.33-12.38,2.75-3.37-2.65-6.85-3.54-10.96-1.65-3.06-1.26-6.21-1.29-8.16,1.76-3.18-1.43-6.01-.84-9.05.58-3.27,2.38-7.24,2.34-10.63-.4-6.68-.84-13.76-.98-20.26,1.35-4.57,2.41-9.34,3.24-14.51,2.38-2.1,2.21-4.78,3.34-7.56,1.86-3.56.45-6.42-.96-9.6-2.32-2.26-1.6-4.59-2.04-7.35-.56-4.27-3.82-8.28-7.5-13.73-9.26-1.73-1.76-3.93-2.27-6.11-1.53-1.89.63-3.46,2.6-4.55,5.36-3.27-.43-6.23-.5-9.44.38-3.06-.79-5.8-1.22-9.18-.92-1.69-3.03-4.07-4.85-7.41-5.59-1.72-1.31-3.63-1.73-5.82-1.54-1.35.3-2.59,2.03-3.79,3.99l-12.57-1.1c-2.65,1.5-5.28,1.23-7.99.26-2.37,1.39-4.83,1.94-7.43,1-6.11.72-10.98,4.09-16.01,8.27-4.13-2.12-8.2-2.21-12.08.14-3.72,1.97-7.42,3.16-11.77,2.42-3.67-.15-6.92.81-9.28,3.61l-5.08.84c-2.92,2.09-6.11,3.01-9.69,3.26-3.25.35-5.92,1.84-7.12,4.91-.62,1.09-1.42,1.84-2.39,2.1-.85-.11-1.91-.41-2.98-1.63-4.38,1.78-8.94,2.8-13.81,2.34l-4.71-3.7c-3.43.98-6.58.78-9.08-1.76-3.36-.39-6.5-.97-9.52-2.23-3.34-3.13-7.36-4.45-11.86-3.97-2.22-2.28-5.09-2.3-7.8-1.19-5.17-.09-9.69,2.13-12.76,6.21-2.14,1.71-5.3,1.52-6.91-1.38-3.3.54-6.19-.36-9.13-2.81-2.65,1.27-4.89,2.48-7.93,2.57-2.89-2.14-6.08-3.21-9.75-3.18-1.89,1.59-4.21,1.39-5.61-1.07-3.59,1.7-7.08,1.02-9.17-2.6-4.29-.43-8.48.47-12.07,2.9l-6.43-3.4c-2.43.96-4.83,1.6-7.32.72-2.68-2.31-5.75-3.44-9.34-3.5-.38,3.93-1.82,6.99-4.99,9.08-3.87,5.37-10.65,6.88-16.77,5.23-5.27.85-10.28-.6-15.63-1.66-4.06,1.8-8.14,2-11.94-1.02-3.44,1.29-6.8,1.59-9.84,0-6.18.24-12.39-1.9-17.38-6.32-2.8-1.32-5.46-1.65-7.73.67-2.95.37-5.53-.5-7.88-2.2-5.43-1.96-11.04-1.81-16.83-1.91-2.75-2.74-6.11-1.9-8.39,1.03-3.59.77-7,1.57-9.92,4.28-5.49-1.2-10.33,1-12.36,6.29-1.94.69-3.68.34-5.64-.68-4.37,2.65-9.29,2.71-14.15,1.46-2.31-2.56-5.34-3.09-8.79-1.98-4.23-2.69-8.75-3.86-13.62-4.59-3.16-3.65-7.36-5.02-12.07-4.86-6.97-3.43-14.96-.08-19.96,5.32-2.25,1.58-5.03,1.31-7.07-.61-3.32-.31-6.29-1.14-9.29-2.87l-9.03,2.11c-2.58-3.77-7.97-4.72-11.59-1.43-2.13-2.58-4.4-2.87-7.33-1.27-3.96-5.34-10.63-5.84-15.51-1.28-2.58-.39-4.73-2.16-7.46-3.33-3.77,1.98-7.38,1.4-10.39-1.31-6.54-1.79-12.52-4.14-18.38-6.73-.73-1.54-2.26-2.54-3.86-2.46-2.06-.71-4.43-.51-4.5,1.85.09.22.04.72-.05.98-3.82,2.04-6.52,5.78-9.55,9.43-2.22.48-4.17,1.58-4.36,3.51-1.88.47-3.98.2-6.08-1.03-2.68-.42-4.71.99-6.48,2.26-.51-.02-1.02.02-1.6.18-.56.19-1.03.81-1.01,1.57l-1.7.15c-2.44,1.6-5.2,1.14-7.82.09l.22-10.08c.7-.42.71-1.27.61-1.56-.99-.8-1.87-.53-2.5-.44-.6.44-.71,1.18-.63,1.78-5.19-1.46-10.68.85-15.77,3.26-5.72,1.88-11.03,4.12-16.81,2.14-4.56,2.44-9.44,2.01-14.22,1.27-3.41-.08-6.08,1.12-7.01,4.51l-7.06,3.43c-3.41-.13-5.97-1.89-8.37-4.27-6.06.1-11.57-.84-17.87-2.18-3.18-.95-5.54-4.24-8.52-6.11-3.24-1.86-6.54-1.67-10.06-.41-3.95-3.92-8.58-5.94-13.8-5.31-2.08,5.56-8.28,6.9-13.48,4.83-4.12.2-7.83-.33-11.24-2.66-3.3-.31-6.19-1.33-9.05-2.89-2.13-1.13-4.33-1.31-6.76-.16-3.52-1.84-6.77-3.37-10.89-4.2-3.12,2.84-6.66,4.69-10.72,6.26-1.81,3.5-5.06,5.43-9.09,4.78-5.06,1.48-10.01,1.2-15.1-.24l-5.64,1.13c-2.88-1.78-5.79-2.12-9.29-2.2-.59-2.19-1.52-4.15-2.82-4.63-2.16-.52-4.14,0-5.76,1.74-3.73.23-7.2-.03-10.66,2.24-3.7-3.84-8.68-4.58-13.88-3.86-3.21.92-6.13.59-8.6-1.8l-10.06-.67c-3.49-2.18-7.24-3.15-11.35-3.81l-43.69.11c-2.76,2.27-5.92,2.44-9.29,1.61-2.71,1.04-5.24,1.12-7.98.17-2.74.98-5.28,1.29-7.95.55l-14.23,2.34c-4.5,1.71-7.84,3.85-9.8,8.53-6.66,1.67-13.73,1.02-20.03-2.15-5.16,1.96-10.36,2.13-16.01,1.98-3.91-.85-7.05.41-9.37,3.66-4.11.66-7.95.48-11.59-.25Z'/></svg>");
+  mask-size: 100% 100%;
+  mask-position: center;
+  mask-repeat: no-repeat;
+}
+.bar:hover  { filter: brightness(1.04); }
+.bar:active { filter: brightness(.96); }
+.bar:focus-visible { outline: .2cqw solid #fff; outline-offset: -.45cqw; }
+
+.bar--map     { background: var(--yellow); }
+.bar--movies  { background: var(--blue); }
+.bar--contact { background: var(--red); }
+/* same subtle paper texture on the accordion bars (clipped to their torn shape by the bar's mask) */
+.bar::before,
+.bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("./assets/hero photos/1/texture.jpg") center / cover no-repeat;
+  pointer-events: none;
+  z-index: 1;
+}
+.bar::before { mix-blend-mode: screen;   opacity: .12; }
+.bar::after  { mix-blend-mode: multiply; opacity: .3; }
+
+/* ── Expand / collapse (0fr → 1fr; layout works without the animation) ── */
+.acc__panelwrap { margin-top: calc(var(--bar-overlap) * -1); display: grid; grid-template-rows: 0fr; transition: grid-template-rows .4s cubic-bezier(.4,0,.2,1); }
+.acc.is-open .acc__panelwrap { grid-template-rows: 1fr; }
+.acc__panelinner { overflow: hidden; min-height: 0; }
+
+.stage { position: relative; width: 100%; isolation: isolate; }
+.stage > * { position: absolute; }
+.stage > *:not(.movie-paper) { margin-top: 1.8cqw; }
+/* subtle paper texture over every section (the hero has its own, stronger one).
+   Two blends so the grain reads on both light and dark areas: multiply shows the
+   texture's darks over light content, screen shows its lights over dark content. */
+.stage::before,
+.stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("./assets/hero photos/1/texture.jpg") center / cover no-repeat;
+  pointer-events: none;
+  z-index: 30;
+}
+.stage::before { mix-blend-mode: screen;   opacity: .12; }
+.stage::after  { mix-blend-mode: multiply; opacity: .3; }
+
+/* ── Map panel (1440 × 655) ──────────────────────────────────────────── */
+.stage--map { height: 45.49cqw; background: var(--ink); overflow: hidden; }
+.stage--map > * { margin-top: 0; }
+.map-wrap { left: 2.1cqw; top: .35cqw; width: 46.6cqw; z-index: 1; }
+.map-img  { display: block; width: 100%; height: auto; }
+
+/* clickable venue dots overlaid on the map (the colored dot itself lives in the SVG) */
+.map-dot {
+  position: absolute; transform: translate(-50%, -50%);
+  width: 6.0cqw; height: 6.0cqw; border-radius: 50%;
+  border: 0; background: transparent; padding: 0; cursor: pointer;
+  z-index: 4; -webkit-tap-highlight-color: transparent;
+}
+/* hover / focus preview: a filled dot in the venue's colour that grows a touch */
+.map-dot::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2.6cqw;
+  height: 2.6cqw;
+  border-radius: 50%;
+  background: var(--dot-color);
+  transform: translate(-50%, -50%) scale(.8);
+  opacity: 0;
+  transition: transform .18s ease, opacity .18s ease;
+  pointer-events: none;
+}
+/* only the un-selected dots get the hover preview (the active dot is already coloured) */
+.map-dot:not([aria-pressed="true"]):hover::before,
+.map-dot:not([aria-pressed="true"]):focus-visible::before {
+  transform: translate(-50%, -50%) scale(1.15);
+  opacity: 1;
+}
+.map-dot:focus-visible { outline: .2cqw solid var(--ink); outline-offset: .1cqw; }
+.map-dot--krieger { left: 46.5%; top: 24.2%; --dot-color: #dbdc2d; }
+.map-dot--tikotin { left: 82.5%; top: 64.9%; --dot-color: #8cb8e2; }
+.map-dot--hecht   { left: 84.3%; top: 85.5%; --dot-color: #f05342; }
+
+.map-info {
+  right: 5.83cqw;
+  top: 4.1cqw;
+  width: 19.86cqw;
+  z-index: 2;
+  color: var(--cream);
+  text-align: right;
+}
+.map-info__title {
+  margin: 0 0 .18cqw;
+  color: var(--map-title-color, var(--yellow));
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.886cqw;
+  line-height: 1.18;
+}
+.map-info__address {
+  margin: 0 0 1.08cqw;
+  color: var(--cream);
+  font-family: var(--text);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.map-info__body {
+  margin: 0;
+  color: var(--cream);
+  font-family: var(--text);
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.legend {
+  right: 5.83cqw; top: 30.5cqw; width: 15.9cqw;
+  list-style: none; margin: 0; padding: 0; z-index: 2; color: var(--cream);
+  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  row-gap: .483cqw;
+}
+.legend li { position: relative; width: 100%; height: 1.936cqw; } /* icon on the right of the text */
+.legend__txt { position: absolute; right: 2.586cqw; top: 50%; transform: translateY(-50%); direction: rtl; text-align: right; font-size: 16px; line-height: 1.25; white-space: nowrap; }
+.legend__ic { position: absolute; right: 0; top: 50%; width: 1.936cqw; height: 1.936cqw; transform: translateY(-50%); }
+
+/* ── Movies panel (1440 × 655) ───────────────────────────────────────── */
+.stage--movies { height: 46.39cqw;  background: #211f1f; }
+.movie__video-wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 67.2cqw;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+  margin-top: 0 !important;
+}
+/* Trailer in the 67.2 × 46.39cqw frame. Two separate things cause black bands
+   here, and the sizing has to beat both:
+
+   1. The iframe must stay exactly 16:9, or YouTube pillar/letterboxes the player
+      itself. Hence height is always derived from width as w * 9/16.
+   2. Most of these trailers are scope (wider than 16:9 — see --trailer-ratio,
+      measured per film), so YouTube letterboxes the picture INSIDE the 16:9
+      player. The picture is then only w / ratio tall, and the leftover is black.
+      So the width is driven by the film's own ratio: at w = 46.39 * ratio the
+      picture is exactly frame-height, and ×1.04 gives margin.
+
+   The max() floor keeps ~1.42× overscan for near-16:9 films, so YouTube's chrome
+   (title bar top, control bar + logo bottom) stays outside the frame. For scope
+   films that chrome sits in the letterbox bars, which are already cropped.
+   Never set height independently of width, and never shrink this to "fit". */
+.movie-still {
+  /* NB: the 1.778 fallback lives in var(), not as a declaration here — declaring
+     it on this element would shadow the per-film value set on .stage--movies. */
+  --trailer-w: max(95.66cqw, calc(46.39cqw * var(--trailer-ratio, 1.778) * 1.04));
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--trailer-w);
+  height: calc(var(--trailer-w) * 9 / 16);
+  border: 0;
+  display: block;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.movie-paper  { right: -16cqw; top: -18cqw; width: 112cqw; height: auto; z-index: 2; pointer-events: none; }
+.sound-toggle {
+  position: absolute;
+  left: 3.1cqw;
+  bottom: 3.2cqw;
+  width: 2.7cqw;
+  height: 2.7cqw;
+  z-index: 4;
+  margin-top: 0 !important;
+  padding: .42cqw;
+  border: .12cqw solid rgba(236,244,219,.8);
+  border-radius: 50%;
+  background: rgba(29,28,26,.58);
+  color: var(--cream);
+  cursor: pointer;
+}
+.sound-toggle svg { width: 100%; height: 100%; display: block; }
+.sound-toggle path, .sound-toggle line { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.sound-toggle path:first-child { fill: currentColor; stroke: none; }
+.sound-toggle:not(.is-muted) .sound-toggle__slash { opacity: 0; }
+
+.movie__content-wrap {
+  position: absolute;
+  top: 6.9cqw;
+  right: var(--hero-text-inset);
+  width: 30.4cqw;
+  height: 36.7cqw;
+  z-index: 3;
+  margin-top: 0 !important;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  color: var(--cream);
+}
+
+.movie__header {
+  position: static;
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1.5cqw;
+}
+
+.movie__title-group, .movie__venue-group {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  width: 100%;
+  gap: .85cqw;
+  direction: rtl;
+  text-align: right;
+}
+
+/* The .85cqw gap on .movie__title-group is the only spacing: same on both
+   sides of the slash, and the same for 1-line and 2-line titles. */
+.m-slash {
+  height: 3.5cqw; width: 1.45cqw; flex: none; display: block;
+  margin: 0;
+  color: var(--movie-venue-color, var(--yellow));
+}
+
+.movie__venue-group .movie__venue, .movie__venue-group .movie__date { transform: none; }
+.movie__title-group .movie__title-he, .movie__title-group .movie__title-en {
+  transform: translateY(0.3cqw);
+}
+
+.movie__title-he, .movie__title-en, .movie__venue, .movie__date { margin: 0; }
+.movie__title-he, .movie__title-en {
+  color: var(--cream); font-family: var(--display); font-weight: 600; font-size: 1.886cqw; line-height: 1;
+  white-space: nowrap;
+  min-width: 0;
+}
+.movie__title-he { text-align: right; }
+.movie__title-en { text-align: left; direction: ltr; }
+
+.movie__content-wrap.is-compact-title .movie__title-he {
+  white-space: nowrap;
+  width: auto;
+  text-align: right;
+}
+.movie__content-wrap.is-compact-title .movie__title-en {
+  white-space: nowrap;
+  width: auto;
+  text-align: left;
+}
+
+.movie__title-group {
+  width: max-content;
+  align-self: flex-start;
+  flex-shrink: 0;
+  align-items: flex-end;
+}
+
+
+.movie__venue {
+  color: var(--movie-venue-color, var(--yellow)); font-family: var(--display); font-weight: 700; font-size: 1.42cqw; line-height: 1.18; text-align: right;
+}
+.movie__date {
+  color: var(--cream); font-family: var(--text); font-weight: 400; font-size: 1.42cqw; line-height: 1.18;
+}
+
+.movie__credits {
+  position: static;
+  width: 34cqw;
+  align-self: flex-start;
+  white-space: nowrap;
+  margin: 1.5cqw 0 0;
+  color: var(--cream); font-size: 16px; line-height: 1.5; text-align: right; font-weight: 500;
+}
+.movie__content-wrap.is-compact-meta .movie__credits {
+  width: 32cqw;
+  white-space: normal;
+}
+.movie__synopsis {
+  position: static;
+  width: 32cqw;
+  align-self: flex-start;
+  height: auto;
+  max-height: 11.8cqw;
+  margin: .8cqw 0 0;
+  color: var(--cream); font-size: 16px; line-height: 1.5; text-align: right; font-weight: 300; opacity: .95;
+  overflow: hidden;
+  text-wrap: pretty;
+}
+.movie__synopsis p { margin: 0 0 1.0cqw; }
+.movie__synopsis p:last-child { margin-bottom: 0; }
+
+.titles-wrap {
+  width: 100%;
+  margin-top: auto;
+  padding-top: 1.2cqw;
+  display: flex;
+  align-items: center;
+  gap: .55cqw;
+  direction: ltr;
+}
+.titles {
+  position: static;
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  direction: rtl;
+  font-family: var(--display);
+  font-size: 0.97cqw;
+  line-height: 1.28;
+  color: var(--cream);
+  font-weight: 400;
+  white-space: nowrap;
+}
+.titles::-webkit-scrollbar { display: none; }
+.titles button {
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.titles button + button::before {
+  content: "\\";
+  display: inline-block;
+  margin: 0 .75cqw;
+  color: var(--cream);
+  font-weight: 400;
+}
+.titles-arrow {
+  flex: none;
+  width: 1.3cqw;
+  height: 1.3cqw;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--cream);
+  font-family: var(--display);
+  font-size: 1.2cqw;
+  line-height: 1;
+  cursor: pointer;
+}
+.titles button:not(.is-active):hover, .titles-arrow:hover { opacity: .82; }
+.titles button.has-movie:not(.is-active):hover,
+.titles button.has-movie.is-active { color: var(--movie-menu-color); }
+.titles button:focus-visible, .titles-arrow:focus-visible { outline: .12cqw solid var(--cream); outline-offset: .25cqw; }
+.titles .is-active { font-weight: 800; }
+/* ── Contact panel (1440 × 593) ──────────────────────────────────────── */
+.stage--contact { height: 42.98cqw; background: var(--ink); }
+
+.cform { left: 14.44cqw; top: 5.6cqw; width: 71.81cqw; z-index: 2; direction: ltr; /* message left, info right */
+         display: grid; grid-template-columns: 42.3cqw 27.1cqw; gap: 1.74cqw; align-items: start; }
+.cform__msg {
+  grid-column: 1; grid-row: 1;
+  height: 19.58cqw; resize: none; padding: 1.1cqw 1.3cqw;
+  background: var(--cream); border: 0; border-radius: 0;
+  box-shadow: -.62cqw .7cqw 0 var(--yellow);
+  font-family: inherit; font-size: 1.25cqw; color: var(--ink); text-align: right;
+}
+.cform__col { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; gap: 1.67cqw; }
+.cform__in {
+  height: 5.42cqw; padding: 0 1.3cqw;
+  background: var(--cream); border: 0; border-radius: 0;
+  box-shadow: .42cqw -.55cqw 0 var(--yellow);
+  font-family: inherit; font-size: 1.25cqw; color: var(--ink); text-align: right;
+}
+.cform__in::placeholder, .cform__msg::placeholder { color: var(--ink); opacity: 1; }
+.cform__send {
+  grid-column: 1; grid-row: 2; justify-self: start; margin-top: .3cqw;
+  width: 8.4cqw; height: 3.25cqw; border: 0; border-radius: 0; cursor: pointer;
+  background: var(--red); color: var(--cream);
+  box-shadow: .42cqw -.55cqw 0 var(--yellow);
+  font-family: var(--text); font-weight: 600; font-size: 1.35cqw;
+  transition: filter .15s ease;
+}
+.cform__send:hover { filter: brightness(1.05); }
+.hero-ticket { margin-top: .8cqw; }
+
+.sponsors { left: 3.19cqw; top: 36.38cqw; width: 22cqw; z-index: 2; }
+
+/* contact details on one line, slash-separated (matches the movies menu) */
+.cinfo {
+  left: 69cqw; top: 36.5cqw; z-index: 2;
+  color: var(--cream); direction: ltr;
+  white-space: nowrap; font-size: 1.25cqw;
+}
+.cinfo__item { color: inherit; opacity: .95; text-decoration: none; }
+.cinfo__item + .cinfo__item::before {
+  content: "\\";
+  margin: 0 .75cqw;
+  opacity: .7;
+  font-weight: 400;
+}
+
+@media (prefers-reduced-motion: reduce) { .acc__panelwrap { transition: none; } }
+
+/* Short desktop heights: once the hero has shrunk to fit the strips, gently
+   refit the intro (nudge up + slightly smaller) so it never runs under the top
+   strip. Only kicks in on genuinely short viewports; the stated targets
+   (1440×900, 1366×768, 1920×1080) clear the bars without needing this. */
+@media (min-width: 900px) and (max-height: 820px) {
+  .intro { top: 16cqw; line-height: 1.42; }   /* keep 16px; nudge up only */
+  .logo  { top: 2.5cqw; }
+  /* lift the left collage a touch more so more of the figures show above the fold */
+  .layer--hero-bg,
+  .layer--hero-p2,
+  .layer--hero-p1,
+  .layer--hero-border { top: 0cqw; }
+}

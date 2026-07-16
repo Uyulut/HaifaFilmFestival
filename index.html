@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>פסטיבל הסרטים הבינלאומי בחיפה ה־42</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+
+<!-- ONE page · ONE hero · ONE accordion. The four Figma frames are the
+     states of this single page (closed / map / movies / contact). -->
+<div class="festival">
+
+  <!-- ══ SHARED HERO ════════════════════════════════════════════════ -->
+  <header class="hero">
+    <!-- artwork layers (separate image assets, positioned per Figma) -->
+    <div class="hero-photo hero-photo--one">
+      <img class="layer layer--hero-bg" src="./assets/hero%20photos/1/background.png" alt="" draggable="false" />
+      <span class="layer layer--hero-border layer--hero-border-blue" aria-hidden="true"></span>
+      <img class="layer layer--hero-p2" src="./assets/hero%20photos/1/person2.png" alt="" draggable="false" />
+      <img class="layer layer--hero-p1" src="./assets/hero%20photos/1/person1.png" alt="" draggable="false" />
+    </div>
+    <div class="hero-photo hero-photo--two">
+      <img class="layer layer--hero-bg" src="./assets/hero%20photos/2/background.png" alt="" draggable="false" />
+      <img class="layer layer--hero-border" src="./assets/hero%20photos/2/border.png" alt="" draggable="false" />
+      <img class="layer layer--hero-p1" src="./assets/hero%20photos/2/person.png" alt="" draggable="false" />
+    </div>
+    <div class="hero-photo hero-photo--three">
+      <img class="layer layer--hero-bg" src="./assets/hero%20photos/3/background.png" alt="" draggable="false" />
+      <img class="layer layer--hero-border" src="./assets/hero%20photos/3/border-boy.png" alt="" draggable="false" />
+      <img class="layer layer--hero-border" src="./assets/hero%20photos/3/border-girl.png" alt="" draggable="false" />
+      <img class="layer layer--hero-p2" src="./assets/hero%20photos/3/boy.png" alt="" draggable="false" />
+      <img class="layer layer--hero-p1" src="./assets/hero%20photos/3/girl.png" alt="" draggable="false" />
+    </div>
+    <img class="layer layer--side"    src="./new%20assets/hero-text-background.png"  alt="" draggable="false" />
+    <img class="layer layer--medium"  src="./new%20assets/hero-header-dark-grey.png" alt="" draggable="false" />
+    <img class="layer layer--grey"    src="./new%20assets/hero-header-grey.png"      alt="" draggable="false" />
+    <img class="layer layer--grey2"   src="./new%20assets/hero-header-grey.png"      alt="" draggable="false" />
+    <img class="layer layer--black"   src="./new%20assets/hero-header-black.png"     alt="" draggable="false" />
+    <img class="layer layer--texture" src="./assets/hero%20photos/1/texture.jpg" alt="" draggable="false" />
+
+    <!-- logo + festival dates (live text) -->
+    <div class="logo">
+      <img class="logo__mark" src="./img/SVG/logo_1.svg"
+           alt="פסטיבל הסרטים הבינלאומי בחיפה · مهرجان الأفلام · Haifa Film Festival" draggable="false" />
+      <p class="logo__dates"><span>26.9</span><i class="dash" aria-hidden="true"></i><span>3.10</span></p>
+    </div>
+
+    <!-- intro paragraph (live text) -->
+    <div class="intro" dir="rtl">
+      <p>פסטיבל הסרטים הבינלאומי בחיפה, שנוסד בשנת 1983, הוא הפסטיבל הראשון והגדול בישראל ואחד מאירועי התרבות המרכזיים בארץ, המתקים מדי שנה במהלך חג סוכות בעיר חיפה, במשך עשרה ימים מוקרנים מאות סרטים משלושה אולמות מהבוקר ועד חצות, לצד הקרנות חוץ במוקדים שונים כמו סינמטק חיפה וגן האם</p>
+      <button class="cform__send hero-ticket" type="button" data-open-section="contact">לכרטיסים</button>
+    </div>
+  </header>
+
+  <!-- ══ ACCORDION ══════════════════════════════════════════════════ -->
+  <div class="accordion">
+
+    <!-- ── Movies ──────────────────────────────────────────── -->
+    <section class="acc" data-section="movies">
+      <h2 class="acc__heading">
+        <button class="bar bar--movies" type="button" aria-expanded="false" aria-controls="panel-movies">סרטים</button>
+      </h2>
+      <div class="acc__panelwrap" id="panel-movies" role="region" aria-label="סרטים">
+        <div class="acc__panelinner">
+          <div class="stage stage--movies" data-movie="armand">
+            <!-- left-side video frame -->
+            <div class="movie__video-wrap">
+              <iframe class="movie-still" src="https://www.youtube.com/embed/xy_bOwqSX6w?autoplay=1&mute=1&controls=0&disablekb=1&fs=0&iv_load_policy=3&cc_load_policy=0&rel=0&playsinline=1&enablejsapi=1&modestbranding=1" title="Armand trailer" allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+            </div>
+            <button class="sound-toggle is-muted" type="button" aria-label="הפעל קול" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 9v6h4l5 4V5L8 9H4Z"></path>
+                <path d="M16 9.5c1.1 1.3 1.1 3.7 0 5"></path>
+                <path d="M18.5 7c2.1 2.8 2.1 7.2 0 10"></path>
+                <line class="sound-toggle__slash" x1="4" y1="4" x2="20" y2="20"></line>
+              </svg>
+            </button>
+            <!-- torn-paper black: solid left, organic torn right edge (panel-sized asset) -->
+            <img class="movie-paper" src="./new%20assets/hero-text-background.png" alt="" draggable="false" />
+
+            <!-- right-side content block -->
+            <div class="movie__content-wrap" dir="rtl">
+              <div class="movie__header">
+                <div class="movie__title-group">
+                  <p class="movie__title-he">ארמנד</p>
+                  <svg class="m-slash" viewBox="0 0 33.77 83.58" aria-hidden="true">
+                    <polygon fill="currentColor" points="0 0 31.89 83.58 33.77 83.58 2.05 0 0 0"></polygon>
+                  </svg>
+                  <p class="movie__title-en">ARMAND</p>
+                </div>
+                
+                <div class="movie__venue-group">
+                  <p class="movie__venue">מרכז קריגר</p>
+                  <p class="movie__date">28.9</p>
+                </div>
+              </div>
+
+              <p class="movie__credits">בימוי: הלפדן אולמן טונדל | נורבגיה 2026 | 117 דקות | נורבגית | תרגום לעברית ואנגלית</p>
+              
+              <div class="movie__synopsis">
+                <p>במהלך אחר צהריים חורפי אחד, בבית ספר ריק, נפגשות אימהותיהם של ארמנד וג'ון בני ה-6 בניסיון ללבן את העניינים אחרי תקרית שקרתה או לא קרתה בין שני הילדים. להפתעתה של המורה המתווכת האבודה, התקרית בין הילדים תתגמד אל מול הקרב בין שתי הנשים הנחושות להגן על ילדיהן. כשאין דרך לגלות מה באמת קרה, סודות ייחשפו, האשמות יוטחו, קווים אישיים ייחצו, ונדמה שכל האמצעים כשרים – עד שלא ברור מי בעצם רב עם מי.</p>
+              </div>
+
+              <!-- program titles row (live text) -->
+              <div class="titles-wrap">
+                <button class="titles-arrow titles-arrow--prev" type="button" aria-label="הסרטים הקודמים">‹</button>
+                <nav class="titles" aria-label="סרטים בתוכנית">
+                <button class="is-active" type="button" data-movie="armand" aria-current="true">ארמנד</button>
+                <button type="button" data-movie="ernest">ארנסט קול: לאבד ולמצוא</button>
+                <button type="button" data-movie="bang">באנג באנג</button>
+                <button type="button" data-movie="buddha">בודהה קופץ מעל לקיר</button>
+                <button type="button" data-movie="babylonia">בוקר טוב בבילוניה</button>
+              </nav>
+                <button class="titles-arrow titles-arrow--next" type="button" aria-label="הסרטים הבאים">›</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Map ─────────────────────────────────────────────── -->
+    <section class="acc" data-section="map">
+      <h2 class="acc__heading">
+        <button class="bar bar--map" type="button" aria-expanded="false" aria-controls="panel-map">מפה</button>
+      </h2>
+      <div class="acc__panelwrap" id="panel-map" role="region" aria-label="מפה">
+        <div class="acc__panelinner">
+          <div class="stage stage--map">
+            <!-- map + clickable venue dots (the active venue's dot is colored in the SVG) -->
+            <div class="map-wrap">
+              <img class="map-img" src="./assets/SVG/yellowmap.svg" alt="מפת מוקדי הפסטיבל בחיפה" draggable="false" />
+              <button class="map-dot map-dot--krieger" type="button" data-venue="krieger" aria-label="מרכז קריגר"></button>
+              <button class="map-dot map-dot--tikotin" type="button" data-venue="tikotin" aria-label="מוזיאון טיקוטין"></button>
+              <button class="map-dot map-dot--hecht"   type="button" data-venue="hecht"   aria-label="בית הכט"></button>
+            </div>
+            <div class="map-info" dir="rtl">
+              <h3 class="map-info__title">מרכז קריגר</h3>
+              <p class="map-info__address">אליהו חכים 6</p>
+              <p class="map-info__body">מרכז קריגר משמש כאחד מאולמות ההקרנה המרכזיים של פסטיבל הסרטים הבינלאומי בחיפה, המושך אליו עשרות אלפי צופים.</p>
+            </div>
+
+            <!-- accessibility legend (live text + per-row icons, recolored to the active venue) -->
+            <ul class="legend" dir="rtl">
+              <li><span class="legend__txt">תחבורה ציבורית</span><img class="legend__ic" data-i="1" src="./img/legend-yellow-1.png" alt="" draggable="false" /></li>
+              <li><span class="legend__txt">נגיש לכיסאות גלגלים</span><img class="legend__ic" data-i="2" src="./img/legend-yellow-2.png" alt="" draggable="false" /></li>
+              <li><span class="legend__txt" id="legend-text-3">חניה זמינה בקרבת האולם</span><img class="legend__ic" data-i="3" src="./img/legend-yellow-3.png" alt="" draggable="false" /></li>
+              <li><span class="legend__txt" id="legend-text-4">בתי קפה במרחק הליכה קצר</span><img class="legend__ic" data-i="4" src="./img/legend-yellow-4.png" alt="" draggable="false" /></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Contact ─────────────────────────────────────────── -->
+    <section class="acc" data-section="contact">
+      <h2 class="acc__heading">
+        <button class="bar bar--contact" type="button" aria-expanded="false" aria-controls="panel-contact">צרו קשר</button>
+      </h2>
+      <div class="acc__panelwrap" id="panel-contact" role="region" aria-label="צרו קשר">
+        <div class="acc__panelinner">
+          <div class="stage stage--contact">
+
+            <!-- real contact form (live) -->
+            <form class="cform" dir="rtl" novalidate>
+              <textarea class="cform__msg" placeholder="...הודעה" aria-label="הודעה"></textarea>
+              <div class="cform__col">
+                <input class="cform__in" type="text"  placeholder="שם מלא*" aria-label="שם מלא" />
+                <input class="cform__in" type="tel"   placeholder="טלפון*"  aria-label="טלפון" />
+                <input class="cform__in" type="email" placeholder="אימייל*" aria-label="אימייל" />
+              </div>
+              <button class="cform__send" type="submit">שליחה</button>
+            </form>
+
+            <!-- sponsor logos (image) + contact details (live text) -->
+            <img class="sponsors" src="./img/sponsors.png" alt="שותפי הפסטיבל" draggable="false" />
+            <div class="cinfo" dir="ltr">
+              <span class="cinfo__item">*9300</span>
+              <a class="cinfo__item" href="mailto:tickets@haifaff.co.il">tickets@haifaff.co.il</a>
+              <a class="cinfo__item" href="mailto:info@haifaff.co.il">info@haifaff.co.il</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script src="./main.js"></script>
+</body>
+</html>
